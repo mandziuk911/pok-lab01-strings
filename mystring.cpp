@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-// All functions in this file were authored by Sviatoslav Mandzyuk.
+
 namespace {
 std::size_t checked_add(std::size_t left, std::size_t right) {
     if (right > std::numeric_limits<std::size_t>::max() - left) throw std::length_error("string size overflow");

@@ -4,7 +4,7 @@
 #include <new>
 #include <stdexcept>
 
-// All functions in this file were authored by Sviatoslav Mandzyuk.
+
 struct my_str_handle { my_str_t value; };
 namespace {
 int translate_exception() {

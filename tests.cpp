@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 
-// All functions in this file were authored by Sviatoslav Mandzyuk.
+
 int main() {
     my_str_t empty;
     assert(empty.size() == 0 && empty.capacity() >= 1);
