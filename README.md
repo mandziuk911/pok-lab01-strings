@@ -19,7 +19,7 @@ The first two additional tasks are included:
    It maps C++ exceptions to `my_str_status` values and never lets an exception
    cross the C ABI boundary.
 
-Every declared function is marked with its author: **Sviatoslav Mandzyuk**.
+Implementation files identify their author where required by the assignment: **Sviatoslav Mandzyuk**.
 
 ## Build and test
 

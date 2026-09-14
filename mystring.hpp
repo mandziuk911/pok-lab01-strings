@@ -6,7 +6,7 @@
 #include <string>
 
 class my_str_t {
-public:
+   public:
     static constexpr std::size_t not_found = static_cast<std::size_t>(-1);
 
     my_str_t();
@@ -48,7 +48,7 @@ public:
     my_str_t& operator+=(char rhs);
     my_str_t& operator*=(std::size_t count);
 
-private:
+   private:
     char* data_m;
     std::size_t capacity_m;
     std::size_t size_m;
