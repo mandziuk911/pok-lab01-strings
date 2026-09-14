@@ -5,7 +5,6 @@
 
 #include "mystring.hpp"
 
-// Author: Sviatoslav Mandzyuk (all functions in this translation unit).
 struct my_str_handle {
     my_str_t value;
 };

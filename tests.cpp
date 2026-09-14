@@ -6,7 +6,6 @@
 #include "mystring.hpp"
 #include "mystring_c.h"
 
-// Author: Sviatoslav Mandzyuk.
 int main() {
     my_str_t empty;
     assert(empty.size() == 0 && empty.capacity() >= 1);

@@ -8,7 +8,6 @@
 #include <stdexcept>
 #include <utility>
 
-// Author: Sviatoslav Mandzyuk (all functions in this translation unit).
 namespace {
 // Reject overflow before allocation so capacity invariants cannot be corrupted.
 std::size_t checked_add(std::size_t left, std::size_t right) {
