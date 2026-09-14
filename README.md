@@ -11,6 +11,10 @@
 The implementation uses `new[]`/`delete[]`; it does not use `malloc`, `realloc`,
 `strlen`, or standard-library string manipulation routines in the library.
 
+For simplicity, `append` and `insert` do not support a source value that belongs
+to the same string being changed (for example, `text.append(text)`). This is
+explicitly permitted by the task specification.
+
 The first two additional tasks are included:
 
 1. Move construction/assignment, `+`, `+=`, `*`, and `*=`. Repetition reserves

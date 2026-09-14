@@ -7,3 +7,5 @@ AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 BreakBeforeBraces: Attach
+InsertBraces: true
+SeparateDefinitionBlocks: Always

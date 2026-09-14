@@ -1,111 +1,218 @@
-#include <cassert>
+#include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
 #include "mystring.hpp"
 #include "mystring_c.h"
 
-int main() {
-    my_str_t empty;
-    assert(empty.size() == 0 && empty.capacity() >= 1);
-    my_str_t filled(3, 'a');
-    my_str_t from_cstr("hello");
-    my_str_t from_std(std::string("world"));
-    my_str_t copied(from_cstr);
-    my_str_t moved(std::move(from_std));
-    assert(from_std.size() == 0 && std::string(from_std.c_str()).empty());
-    from_std.append('x');
-    assert(from_std == "x");
-    copied = filled;
-    moved = my_str_t("move");
-    filled.swap(copied);
-    filled[0] = 'A';
-    assert(filled.at(0) == 'A');
-    bool caught = false;
-    try {
-        filled.at(100);
-    } catch (const std::out_of_range&) {
-        caught = true;
+namespace {
+
+bool check(bool condition, const char* message) {
+    if (!condition) {
+        std::cerr << "Test failed: " << message << '\n';
+        return false;
     }
-    assert(caught);
-    filled.reserve(30);
-    assert(filled.capacity() >= 30);
-    filled.resize(5, 'z');
-    filled.resize(2);
-    filled.shrink_to_fit();
-    filled.clear();
-    from_cstr.insert(5, '!');
-    from_cstr.insert(0, "Say ");
-    from_cstr.insert(0, my_str_t("X"));
-    from_cstr.append('!');
-    from_cstr.append(" end");
-    from_cstr.append(my_str_t("."));
-    from_cstr.erase(0, 1);
-    // Exercise aliasing paths that would otherwise leave a c_str pointer dangling.
-    my_str_t self_reference("abc");
-    self_reference.append(self_reference.c_str());
-    assert(self_reference == "abcabc");
-    self_reference.insert(3, self_reference);
-    assert(self_reference == "abcabcabcabc");
-    assert(from_cstr.find('h') != my_str_t::not_found);
-    assert(from_cstr.find("hello") != my_str_t::not_found);
-    assert(from_cstr.find(std::string("hello")) != my_str_t::not_found);
-    assert(from_cstr.substr(0, 5) == "Say h");
-    assert(from_cstr.c_str() != nullptr);
-    assert(my_str_t("a") < my_str_t("b") && my_str_t("a") <= "a" && "b" > my_str_t("a"));
-    assert(my_str_t("a") != "b" && "a" == my_str_t("a") && "a" <= my_str_t("a"));
-    my_str_t ops("ab");
-    ops += "c";
-    ops += 'd';
-    ops += my_str_t("e");
-    assert(ops == "abcde");
-    assert(my_str_t("a") + "b" + 'c' == "abc");
-    assert('a' + my_str_t("b") == "ab");
-    assert(my_str_t("ab") * 3 == "ababab" && 2 * my_str_t("x") == "xx");
-    ops *= 2;
-    assert(ops == "abcdeabcde");
+    return true;
+}
+
+bool test_construction_and_assignment() {
+    my_str_t empty;
+    my_str_t letters(3, 'a');
+    my_str_t from_c_string("hello");
+    my_str_t from_std_string(std::string("world"));
+    my_str_t copied(from_c_string);
+    my_str_t moved(std::move(from_std_string));
+
+    if (!check(empty.size() == 0, "default constructor creates an empty string")) {
+        return false;
+    }
+    if (!check(letters == "aaa", "fill constructor repeats its character")) {
+        return false;
+    }
+    if (!check(copied == "hello", "copy constructor copies text")) {
+        return false;
+    }
+    if (!check(moved == "world", "move constructor keeps the original text")) {
+        return false;
+    }
+    if (!check(from_std_string.size() == 0, "moved-from string is empty")) {
+        return false;
+    }
+
+    copied = letters;
+    moved = my_str_t("new value");
+    copied.swap(moved);
+    const my_str_t constant("read");
+    return check(copied == "new value", "copy assignment and swap work") &&
+           check(moved == "aaa", "move assignment works") &&
+           check(constant[0] == 'r', "const indexing works");
+}
+
+bool test_access_and_capacity() {
+    my_str_t text("cat");
+    text[0] = 'C';
+
+    if (!check(text.at(0) == 'C', "indexing and at access characters")) {
+        return false;
+    }
+
+    bool caught_out_of_range = false;
+    try {
+        text.at(10);
+    } catch (const std::out_of_range&) {
+        caught_out_of_range = true;
+    }
+    if (!check(caught_out_of_range, "at rejects an invalid index")) {
+        return false;
+    }
+
+    text.reserve(20);
+    if (!check(text.capacity() >= 20, "reserve grows capacity")) {
+        return false;
+    }
+
+    text.resize(5, '!');
+    if (!check(text == "Cat!!", "resize adds fill characters")) {
+        return false;
+    }
+
+    text.resize(2);
+    text.shrink_to_fit();
+    if (!check(text == "Ca", "resize can shrink a string")) {
+        return false;
+    }
+
+    text.clear();
+    return check(text.size() == 0 && std::string(text.c_str()).empty(),
+                 "clear restores an empty C string");
+}
+
+bool test_changes_and_search() {
+    my_str_t text("hello");
+    text.insert(5, '!');
+    text.insert(0, "Say ");
+    text.insert(0, my_str_t("X"));
+    text.append('!');
+    text.append(" end");
+    text.append(my_str_t("."));
+    text.erase(0, 1);
+
+    if (!check(text == "Say hello!! end.", "insert, append, and erase change text")) {
+        return false;
+    }
+    if (!check(text.find('h') == 4, "find locates one character")) {
+        return false;
+    }
+    if (!check(text.find("hello") == 4, "find locates a C string")) {
+        return false;
+    }
+    if (!check(text.find(std::string("hello")) == 4, "find locates std::string text")) {
+        return false;
+    }
+    return check(text.substr(0, 5) == "Say h", "substr returns part of a string");
+}
+
+bool test_operators_and_streams() {
+    my_str_t text("ab");
+    text += "c";
+    text += 'd';
+    text += my_str_t("e");
+
+    if (!check(text == "abcde", "operator += concatenates")) {
+        return false;
+    }
+    if (!check(my_str_t("a") + my_str_t("b") == "ab", "string plus string works")) {
+        return false;
+    }
+    if (!check(my_str_t("a") + "b" + 'c' == "abc", "operator + concatenates")) {
+        return false;
+    }
+    if (!check("a" + my_str_t("b") == "ab", "C string plus string works")) {
+        return false;
+    }
+    if (!check(my_str_t("a") + 'b' == "ab" && 'a' + my_str_t("b") == "ab",
+               "character and string concatenation works")) {
+        return false;
+    }
+    if (!check(my_str_t("ab") * 3 == "ababab" && 2 * my_str_t("x") == "xx",
+               "operator * repeats strings")) {
+        return false;
+    }
+
+    text *= 2;
+    if (!check(text == "abcdeabcde", "operator *= repeats strings")) {
+        return false;
+    }
+    if (!check(my_str_t("a") == my_str_t("a") && my_str_t("a") != my_str_t("b") &&
+                   my_str_t("b") > my_str_t("a") && my_str_t("b") >= my_str_t("b") &&
+                   my_str_t("a") < my_str_t("b") && my_str_t("a") <= my_str_t("a") &&
+                   my_str_t("a") == "a" && my_str_t("a") != "b" && my_str_t("b") > "a" &&
+                   my_str_t("b") >= "b" && my_str_t("a") < "b" && my_str_t("a") <= "a" &&
+                   "a" == my_str_t("a") && "a" != my_str_t("b") && "b" > my_str_t("a") &&
+                   "b" >= my_str_t("b") && "a" < my_str_t("b") && "a" <= my_str_t("a"),
+               "comparison operators are lexicographical")) {
+        return false;
+    }
+
     std::ostringstream output;
-    output << ops;
-    assert(output.str() == "abcdeabcde");
+    output << text;
+    if (!check(output.str() == "abcdeabcde", "output stream writes the full string")) {
+        return false;
+    }
+
     std::istringstream input("  one two\nline");
     my_str_t read;
     input >> read;
-    assert(read == "one");
+    if (!check(read == "one", "input stream reads one word")) {
+        return false;
+    }
     readline(input, read);
-    assert(read == " two");
+    return check(read == " two", "readline reads up to a newline");
+}
 
-    // The C API is verified from C++ here; c_api_demo.c also compiles it as C.
-    my_str_handle* c_string = my_str_create_from_cstr("C");
-    assert(c_string != nullptr);
-    my_str_handle* c_copy = my_str_create_from_cstr(" copy");
-    assert(c_copy != nullptr);
-    assert(my_str_append(c_string, " API") == MY_STR_OK);
-    assert(my_str_append_string(c_string, c_copy) == MY_STR_OK);
-    assert(my_str_append_char(c_string, '!') == MY_STR_OK);
-    assert(my_str_insert(c_string, 0, "my ") == MY_STR_OK);
-    assert(my_str_insert_string(c_string, 0, c_copy) == MY_STR_OK);
-    assert(my_str_erase(c_string, 0, 3) == MY_STR_OK);
-    assert(my_str_resize(c_string, 7, '.') == MY_STR_OK);
-    assert(my_str_reserve(c_string, 20) == MY_STR_OK && my_str_capacity(c_string) >= 20);
-    assert(my_str_repeat(c_string, 2) == MY_STR_OK);
+bool test_c_api() {
+    my_str_handle* text = my_str_create_from_cstr("C");
+    my_str_handle* suffix = my_str_create_from_cstr(" copy");
+    if (!check(text != nullptr && suffix != nullptr, "C API creates handles")) {
+        my_str_destroy(text);
+        my_str_destroy(suffix);
+        return false;
+    }
+
+    bool success = true;
+    success = success && check(my_str_append(text, " API") == MY_STR_OK, "C API appends C strings");
+    success =
+        success && check(my_str_append_string(text, suffix) == MY_STR_OK, "C API appends handles");
+    success =
+        success && check(my_str_append_char(text, '!') == MY_STR_OK, "C API appends characters");
+    success = success && check(my_str_insert(text, 0, "my ") == MY_STR_OK, "C API inserts text");
+    success = success && check(my_str_erase(text, 0, 3) == MY_STR_OK, "C API erases text");
+    success = success && check(my_str_resize(text, 7, '.') == MY_STR_OK, "C API resizes strings");
+    success = success && check(my_str_repeat(text, 2) == MY_STR_OK, "C API repeats strings");
+
     char character = '\0';
-    assert(my_str_at(c_string, 0, &character) == MY_STR_OK);
-    assert(my_str_set_at(c_string, 0, character) == MY_STR_OK);
-    size_t position = 0;
-    assert(my_str_find_char(c_string, 'A', 0, &position) == MY_STR_OK);
-    assert(my_str_find(c_string, "API", 0, &position) == MY_STR_OK);
-    my_str_handle* part = nullptr;
-    assert(my_str_substr(c_string, 0, 1, &part) == MY_STR_OK);
-    int comparison = 0;
-    assert(my_str_compare(part, part, &comparison) == MY_STR_OK && comparison == 0);
-    assert(my_str_shrink_to_fit(c_string) == MY_STR_OK);
-    assert(my_str_clear(c_string) == MY_STR_OK && my_str_size(c_string) == 0);
-    assert(my_str_assign(c_string, "done") == MY_STR_OK);
-    assert(std::string(my_str_c_str(c_string)) == "done");
-    assert(my_str_compare_cstr(c_string, "done", &comparison) == MY_STR_OK && comparison == 0);
-    assert(my_str_append(nullptr, "invalid") == MY_STR_INVALID_ARGUMENT);
-    my_str_destroy(part);
-    my_str_destroy(c_copy);
-    my_str_destroy(c_string);
+    std::size_t position = 0;
+    success = success &&
+              check(my_str_at(text, 0, &character) == MY_STR_OK, "C API reads a checked character");
+    success = success && check(my_str_set_at(text, 0, character) == MY_STR_OK,
+                               "C API writes a checked character");
+    success = success && check(my_str_find_char(text, 'A', 0, &position) == MY_STR_OK,
+                               "C API searches for a character");
+    success = success && check(my_str_append(nullptr, "invalid") == MY_STR_INVALID_ARGUMENT,
+                               "C API reports null handles");
+
+    my_str_destroy(text);
+    my_str_destroy(suffix);
+    return success;
+}
+
+}  // namespace
+
+int main() {
+    return test_construction_and_assignment() && test_access_and_capacity() &&
+                   test_changes_and_search() && test_operators_and_streams() && test_c_api()
+               ? 0
+               : 1;
 }

@@ -5,6 +5,7 @@
 #include <iosfwd>
 #include <string>
 
+// Invariant: data_m has capacity_m + 1 bytes and data_m[size_m] is always '\0'.
 class my_str_t {
    public:
     static constexpr std::size_t not_found = static_cast<std::size_t>(-1);
@@ -54,7 +55,7 @@ class my_str_t {
     std::size_t size_m;
 
     static std::size_t cstring_length(const char* cstr);
-    static std::size_t growth_capacity(std::size_t required);
+    static char* make_empty_buffer();
     void ensure_capacity(std::size_t required);
 };
 

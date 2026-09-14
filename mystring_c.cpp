@@ -8,6 +8,7 @@
 struct my_str_handle {
     my_str_t value;
 };
+
 namespace {
 // C callers cannot catch C++ exceptions, so the ABI exposes stable status codes.
 int translate_exception() {
@@ -23,10 +24,12 @@ int translate_exception() {
         return MY_STR_FAILURE;
     }
 }
+
 bool valid(const my_str_handle* string) {
     return string != nullptr;
 }
 }  // namespace
+
 extern "C" {
 my_str_handle* my_str_create(void) {
     try {
@@ -35,22 +38,27 @@ my_str_handle* my_str_create(void) {
         return nullptr;
     }
 }
+
 // Aggregate initialization releases allocated storage if string construction throws.
 my_str_handle* my_str_create_from_cstr(const char* value) {
-    if (value == nullptr)
+    if (value == nullptr) {
         return nullptr;
+    }
     try {
         return new my_str_handle{my_str_t(value)};
     } catch (...) {
         return nullptr;
     }
 }
+
 void my_str_destroy(my_str_handle* string) {
     delete string;
 }
+
 int my_str_assign(my_str_handle* string, const char* value) {
-    if (!valid(string) || value == nullptr)
+    if (!valid(string) || value == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value = my_str_t(value);
         return MY_STR_OK;
@@ -58,9 +66,11 @@ int my_str_assign(my_str_handle* string, const char* value) {
         return translate_exception();
     }
 }
+
 int my_str_append(my_str_handle* string, const char* value) {
-    if (!valid(string) || value == nullptr)
+    if (!valid(string) || value == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.append(value);
         return MY_STR_OK;
@@ -68,9 +78,11 @@ int my_str_append(my_str_handle* string, const char* value) {
         return translate_exception();
     }
 }
+
 int my_str_append_string(my_str_handle* string, const my_str_handle* value) {
-    if (!valid(string) || !valid(value))
+    if (!valid(string) || !valid(value)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.append(value->value);
         return MY_STR_OK;
@@ -78,9 +90,11 @@ int my_str_append_string(my_str_handle* string, const my_str_handle* value) {
         return translate_exception();
     }
 }
+
 int my_str_append_char(my_str_handle* string, char value) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.append(value);
         return MY_STR_OK;
@@ -88,9 +102,11 @@ int my_str_append_char(my_str_handle* string, char value) {
         return translate_exception();
     }
 }
+
 int my_str_insert(my_str_handle* string, size_t index, const char* value) {
-    if (!valid(string) || value == nullptr)
+    if (!valid(string) || value == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.insert(index, value);
         return MY_STR_OK;
@@ -98,9 +114,11 @@ int my_str_insert(my_str_handle* string, size_t index, const char* value) {
         return translate_exception();
     }
 }
+
 int my_str_insert_string(my_str_handle* string, size_t index, const my_str_handle* value) {
-    if (!valid(string) || !valid(value))
+    if (!valid(string) || !valid(value)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.insert(index, value->value);
         return MY_STR_OK;
@@ -108,9 +126,11 @@ int my_str_insert_string(my_str_handle* string, size_t index, const my_str_handl
         return translate_exception();
     }
 }
+
 int my_str_erase(my_str_handle* string, size_t begin, size_t count) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.erase(begin, count);
         return MY_STR_OK;
@@ -118,9 +138,11 @@ int my_str_erase(my_str_handle* string, size_t begin, size_t count) {
         return translate_exception();
     }
 }
+
 int my_str_resize(my_str_handle* string, size_t new_size, char fill) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.resize(new_size, fill);
         return MY_STR_OK;
@@ -128,9 +150,11 @@ int my_str_resize(my_str_handle* string, size_t new_size, char fill) {
         return translate_exception();
     }
 }
+
 int my_str_reserve(my_str_handle* string, size_t capacity) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.reserve(capacity);
         return MY_STR_OK;
@@ -138,9 +162,11 @@ int my_str_reserve(my_str_handle* string, size_t capacity) {
         return translate_exception();
     }
 }
+
 int my_str_shrink_to_fit(my_str_handle* string) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.shrink_to_fit();
         return MY_STR_OK;
@@ -148,15 +174,19 @@ int my_str_shrink_to_fit(my_str_handle* string) {
         return translate_exception();
     }
 }
+
 int my_str_clear(my_str_handle* string) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     string->value.clear();
     return MY_STR_OK;
 }
+
 int my_str_repeat(my_str_handle* string, size_t count) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value *= count;
         return MY_STR_OK;
@@ -164,9 +194,11 @@ int my_str_repeat(my_str_handle* string, size_t count) {
         return translate_exception();
     }
 }
+
 int my_str_substr(const my_str_handle* string, size_t begin, size_t count, my_str_handle** result) {
-    if (!valid(string) || result == nullptr)
+    if (!valid(string) || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     *result = nullptr;
     try {
         *result = new my_str_handle{string->value.substr(begin, count)};
@@ -175,18 +207,32 @@ int my_str_substr(const my_str_handle* string, size_t begin, size_t count, my_st
         return translate_exception();
     }
 }
+
 size_t my_str_size(const my_str_handle* string) {
-    return valid(string) ? string->value.size() : 0;
+    if (!valid(string)) {
+        return 0;
+    }
+    return string->value.size();
 }
+
 size_t my_str_capacity(const my_str_handle* string) {
-    return valid(string) ? string->value.capacity() : 0;
+    if (!valid(string)) {
+        return 0;
+    }
+    return string->value.capacity();
 }
+
 const char* my_str_c_str(const my_str_handle* string) {
-    return valid(string) ? string->value.c_str() : nullptr;
+    if (!valid(string)) {
+        return nullptr;
+    }
+    return string->value.c_str();
 }
+
 int my_str_at(const my_str_handle* string, size_t index, char* result) {
-    if (!valid(string) || result == nullptr)
+    if (!valid(string) || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         *result = string->value.at(index);
         return MY_STR_OK;
@@ -194,9 +240,11 @@ int my_str_at(const my_str_handle* string, size_t index, char* result) {
         return translate_exception();
     }
 }
+
 int my_str_set_at(my_str_handle* string, size_t index, char value) {
-    if (!valid(string))
+    if (!valid(string)) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         string->value.at(index) = value;
         return MY_STR_OK;
@@ -204,9 +252,11 @@ int my_str_set_at(my_str_handle* string, size_t index, char value) {
         return translate_exception();
     }
 }
+
 int my_str_find_char(const my_str_handle* string, char value, size_t index, size_t* result) {
-    if (!valid(string) || result == nullptr)
+    if (!valid(string) || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         *result = string->value.find(value, index);
         return MY_STR_OK;
@@ -214,9 +264,11 @@ int my_str_find_char(const my_str_handle* string, char value, size_t index, size
         return translate_exception();
     }
 }
+
 int my_str_find(const my_str_handle* string, const char* value, size_t index, size_t* result) {
-    if (!valid(string) || value == nullptr || result == nullptr)
+    if (!valid(string) || value == nullptr || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         *result = string->value.find(value, index);
         return MY_STR_OK;
@@ -224,15 +276,19 @@ int my_str_find(const my_str_handle* string, const char* value, size_t index, si
         return translate_exception();
     }
 }
+
 int my_str_compare(const my_str_handle* left, const my_str_handle* right, int* result) {
-    if (!valid(left) || !valid(right) || result == nullptr)
+    if (!valid(left) || !valid(right) || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     *result = left->value < right->value ? -1 : (left->value > right->value ? 1 : 0);
     return MY_STR_OK;
 }
+
 int my_str_compare_cstr(const my_str_handle* left, const char* right, int* result) {
-    if (!valid(left) || right == nullptr || result == nullptr)
+    if (!valid(left) || right == nullptr || result == nullptr) {
         return MY_STR_INVALID_ARGUMENT;
+    }
     try {
         *result = left->value < right ? -1 : (left->value > right ? 1 : 0);
         return MY_STR_OK;

@@ -23,3 +23,4 @@ target_link_libraries(c_api_demo PRIVATE mystring)
 
 enable_testing()
 add_test(NAME string_tests COMMAND string_tests)
+add_test(NAME c_api_demo COMMAND c_api_demo)
