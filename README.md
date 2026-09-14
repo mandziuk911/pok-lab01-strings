@@ -35,7 +35,7 @@ ctest --test-dir build --output-on-failure
 `tests.cpp` exercises the C++ API and the C binding. `c_api_demo.c` verifies
 that the public C header is accepted by a C compiler and demonstrates its use.
 
-## CMS submission text
+## LMS submission text
 
 ```text
 Здав роботу на GitHub: https://github.com/mandziuk911/pok-lab01-strings
