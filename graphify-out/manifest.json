@@ -1,0 +1,50 @@
+{
+  "c_api_demo.c": {
+    "mtime": 1789376401.1148827,
+    "seen": 1789388286.935513,
+    "ast_hash": "faa92dbc22dfa4dced609f1a898fbbdf",
+    "semantic_hash": "faa92dbc22dfa4dced609f1a898fbbdf"
+  },
+  "mystring.cpp": {
+    "mtime": 1789376401.113707,
+    "seen": 1789388286.9355159,
+    "ast_hash": "7dc00a47f0c982ac28bf0088e5fcc50c",
+    "semantic_hash": "7dc00a47f0c982ac28bf0088e5fcc50c"
+  },
+  "mystring.hpp": {
+    "mtime": 1789376401.1133792,
+    "seen": 1789388286.9355168,
+    "ast_hash": "9b6ff46533da7c53e04dc7d0a5b810e0",
+    "semantic_hash": "9b6ff46533da7c53e04dc7d0a5b810e0"
+  },
+  "mystring_c.cpp": {
+    "mtime": 1789376401.1143584,
+    "seen": 1789388286.935518,
+    "ast_hash": "6870e61d42cb59ed78ff23a77d3f232b",
+    "semantic_hash": "6870e61d42cb59ed78ff23a77d3f232b"
+  },
+  "mystring_c.h": {
+    "mtime": 1789376401.1140401,
+    "seen": 1789388286.935519,
+    "ast_hash": "b97d1dd25647271b7e3f931c54c727c0",
+    "semantic_hash": "b97d1dd25647271b7e3f931c54c727c0"
+  },
+  "tests.cpp": {
+    "mtime": 1789376401.114627,
+    "seen": 1789388286.935519,
+    "ast_hash": "7b3ddb30d71b04b3cc92feeb5dbf0a70",
+    "semantic_hash": "7b3ddb30d71b04b3cc92feeb5dbf0a70"
+  },
+  "CMakeLists.txt": {
+    "mtime": 1789375186.5785925,
+    "seen": 1789388286.93552,
+    "ast_hash": "6136c6b2f4e1d788b1e441fc57df44e7",
+    "semantic_hash": "6136c6b2f4e1d788b1e441fc57df44e7"
+  },
+  "README.md": {
+    "mtime": 1789375791.228885,
+    "seen": 1789388286.93552,
+    "ast_hash": "517923124040b5875ad688229d104b70",
+    "semantic_hash": "517923124040b5875ad688229d104b70"
+  }
+}
